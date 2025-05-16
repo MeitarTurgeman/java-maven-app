@@ -2,9 +2,6 @@
 
 pipeline {
     agent any
-    tools {
-        maven 'Maven'
-    }
     stages {
         stage('increment version') {
             steps {
