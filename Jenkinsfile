@@ -53,6 +53,7 @@ pipeline {
                         sh '''
                             eval $(ssh-agent -s)
                             ssh-add $SSH_KEY
+                            mkdir -p ~/.ssh
                             ssh-keyscan github.com >> ~/.ssh/known_hosts
                             git config --global user.email "jenkins@example.com"
                             git config --global user.name "jenkins"
