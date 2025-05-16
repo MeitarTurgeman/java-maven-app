@@ -49,15 +49,18 @@ pipeline {
         stage('commit version update') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'github-credentials', passwordVariable: 'PASS', usernameVariable: 'USER')]) {
-                        // git config here for the first time run
-                        sh 'git config --global user.email "jenkins@example.com"'
-                        sh 'git config --global user.name "jenkins"'
-
-                        sh "git remote set-url origin git@github.com:MeitarTurgeman/java-maven-app.git"
-                        sh 'git add .'
-                        sh 'git commit -m "ci: version bump"'
-                        sh 'git push origin HEAD:jenkins-jobs'
+                    withCredentials([sshUserPrivateKey(credentialsId: 'ssh-private-key', keyFileVariable: 'SSH_KEY')]) {
+                        sh '''
+                            eval $(ssh-agent -s)
+                            ssh-add $SSH_KEY
+                            ssh-keyscan github.com >> ~/.ssh/known_hosts
+                            git config --global user.email "jenkins@example.com"
+                            git config --global user.name "jenkins"
+                            git remote set-url origin git@github.com:MeitarTurgeman/java-maven-app.git
+                            git add .
+                            git commit -m "ci: version bump"
+                            git push origin HEAD:jenkins-jobs
+                        '''
                     }
                 }
             }
