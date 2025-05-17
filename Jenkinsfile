@@ -6,6 +6,18 @@ pipeline {
         maven 'maven 3.9'
     }
     stages {
+        stage('Skip if version bump commit') {
+            when {
+                expression {
+                    def lastCommitMsg = sh(script: 'git log -1 --pretty=%B', returnStdout: true).trim()
+                    return lastCommitMsg.contains('[ci skip]')
+                }
+            }
+            steps {
+                echo 'Skipping build because it is a version bump commit.'
+                script { currentBuild.result = 'SUCCESS'; }
+            }
+        }
         stage('increment version') {
             steps {
                 script {
